@@ -26,11 +26,12 @@ def prime_generate_number(len):
         p = prime_generate(len)
     return p
 
-def generate_keys():
+def generate_keys(user_key):
+    random.seed(user_key)
     p = prime_generate_number(8)
     q = prime_generate_number(8)
     f = (p - 1) * (q - 1)
-    n = p*q
+    n = p * q
     e = random.randrange(2, f)
     while gcd(e, f) != 1:
         e = random.randrange(2, f)
@@ -52,9 +53,10 @@ def decrypt(ciphertext, private_key):
     d, n = private_key
     return ''.join([chr(pow(char, d, n)) for char in ciphertext])
 
-public_key, private_key = generate_keys()
-
 def on_encrypt():
+    user_key = user_key_entry.get()
+    public_key, private_key = generate_keys(user_key)
+    
     text = plaintext_entry.get()
     cipher = encrypt(text, public_key)
     ciphertext_entry.delete(0, tk.END)
@@ -69,12 +71,19 @@ def on_decrypt():
         result_text.insert(tk.END, "Ошибка\n")
         return
 
+    user_key = user_key_entry.get()
+    public_key, private_key = generate_keys(user_key)
+    
     decrypted_text = decrypt(ciphertext, private_key)
     result_text.delete(1.0, tk.END)
     result_text.insert(tk.END, decrypted_text)
 
 root = tk.Tk()
 root.title("rsa")
+
+tk.Label(root, text="Ключ для шифрования:").grid(row=1, column=0, padx=10, pady=10)
+user_key_entry = tk.Entry(root, width=40)
+user_key_entry.grid(row=1, column=1, padx=10, pady=10)
 
 tk.Label(root, text="Исходный текст:").grid(row=0, column=0, padx=10, pady=10)
 plaintext_entry = tk.Entry(root, width=40)
